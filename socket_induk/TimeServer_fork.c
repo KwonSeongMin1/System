@@ -29,22 +29,25 @@ int main(int argc, char *argv[]){
 		return -1;
 	}
 	do{
-	nCFd=accept(nSFd,(struct sockaddr*)&cAddr, &nCAddr);
-	if(nCFd>0){
-		printf("Client Info:\n");
-		printf("\t- IP Address : %s\n",inet_ntoa(cAddr.sin_addr));
-		printf("\t- Port : %d\n",ntohs(cAddr.sin_port));
+		nCFd=accept(nSFd,(struct sockaddr*)&cAddr, &nCAddr);
+		if(nCFd>0){
+			printf("Client Info:\n");
+			printf("\t- IP Address : %s\n",inet_ntoa(cAddr.sin_addr));
+			printf("\t- Port : %d\n",ntohs(cAddr.sin_port));
 
-		sending_time_info(nCFd);
-		close(nCFd);
+			if(fork()==0){
+				sending_time_info(nCFd);
+				close(nCFd);
+				return 0;
+			}
+			close(nCFd);
 	}
 	else{
 		printf("Connection Failure.\n");
 	}
 	}while(1);
 	wait(NULL);
-	return 0;
-}
+	return 0;}
 
 int sending_time_info(int nCFd){
 	

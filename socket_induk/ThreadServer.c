@@ -39,7 +39,7 @@ int main(int argc, char *argv[]){
 	nCFd=accept(nSFd,(struct sockaddr*)&cAddr,&nCAddr);
 	if(nCFd>0){
 		printf("Client Info:\n");
-		printf("\t- IP Address : %s\n",inet_ntoa(cAdr.sin_addr));
+		printf("\t- IP Address : %s\n",inet_ntoa(cAddr.sin_addr));
 		printf("\t- Port : %d\n",ntohs(cAddr.sin_port));
 
 		pthread_create(&pthread_KeyboardReader, NULL,KeyboardReader,(void*)&nCFd);
