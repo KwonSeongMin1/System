@@ -138,14 +138,18 @@ int main(int argc,char *argv[]){
 
                 bzero(message,BUFSIZ);
                 message_len=read(0,message,BUFSIZ);
-               // printf("[%s]>>>%s",nickname, message);
                 if(message_len>0){
                     if(strncasecmp(message,"exit",4)==0){
+						char disconnect_message[500];
+						snprintf(disconnect_message,sizeof(disconnect_message),"%s has terminated the client.\n",nickname);
+						send(rfds[1].fd,disconnect_message,sizeof(disconnect_message),0);
 						printf("DISCONNECT\n");
-						send(rfds[1].fd,nickname,sizeof(nickname),0);
 						break;
 					}
-
+					else{
+						snprintf(combined_message, sizeof(combined_message), "[%s]>>>%s", nickname, message);
+                    	send(rfds[1].fd,combined_message,sizeof(combined_message),0);
+					}
 					// insert message log
 					const char *insert_message = "insert into message (message_text,send_time,nickname) values (?,?,?);";
 					sqlite3_stmt *stmt;
@@ -160,8 +164,8 @@ int main(int argc,char *argv[]){
 					sqlite3_finalize(stmt);
 
 
-					snprintf(combined_message, sizeof(combined_message), "[%s]>>>%s", nickname, message);
-                    send(rfds[1].fd,combined_message,sizeof(combined_message),0);
+					//snprintf(combined_message, sizeof(combined_message), "[%s]>>>%s", nickname, message);
+                    //send(rfds[1].fd,combined_message,sizeof(combined_message),0);
                 }
             }
        

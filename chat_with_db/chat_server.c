@@ -64,15 +64,14 @@ int main(int argc, char *argv[]){
                         char strBuffer2[BUFSIZ];
                         int nBufferLen2=0;
                         bzero(strBuffer,BUFSIZ);
-                        bzero(strBuffer,BUFSIZ);
+                        bzero(strBuffer2,BUFSIZ);
                         nBufferLen=read(0,strBuffer,BUFSIZ);
-                        printf("Input : %s",strBuffer);
                         if(nBufferLen>0){
                             if(strncasecmp(strBuffer,"exit",4)==0){
                                 nKeepRunning=0;
                                 break;
                             }
-                            nBufferLen2=sprintf(strBuffer2,"[Server] %s",strBuffer);
+                            nBufferLen2=sprintf(strBuffer2,"\n\n[NOTICE] %s\n\n",strBuffer);
                             for(int i=2;i<MAX_CLIENTS+2;i++){
                                 if(rfds[i].fd<0) continue;
                                 send(rfds[i].fd,strBuffer2,nBufferLen2,0);
@@ -81,7 +80,6 @@ int main(int argc, char *argv[]){
                     }
                     else if(i==1){
 						// client connect
-                        printf("Connecting...");
                         int fd=accept(rfds[i].fd,(struct sockaddr*)&stCAddr,&nCAddr);
                         if(fd>0){
                             for(int i=2;i<MAX_CLIENTS+2;i++){
@@ -89,17 +87,10 @@ int main(int argc, char *argv[]){
                                     rfds[i].fd=fd;
                                     rfds[i].events=POLLIN;
                                     rfds[i].revents=0;
-                                    char strBuffer[BUFSIZ];
-                                    int nBufferLen=0;
-                                    bzero(strBuffer,BUFSIZ);
-                                    nBufferLen=sprintf(strBuffer,"[%d] Your ID is [%d]\n", fd,fd);
-                                    send(rfds[i].fd,strBuffer,nBufferLen,0);
                                     break;
                                 }
                             }
-                            printf("Success!!");
                         }
-                        printf("\n");
                     }
                     else{
 						// client communication
@@ -107,10 +98,13 @@ int main(int argc, char *argv[]){
                         int nBufferLen=0;
                         bzero(strBuffer,BUFSIZ);
                         nBufferLen=read(rfds[i].fd,strBuffer,BUFSIZ);
-						
+					
+
+						printf("%s\n",strBuffer);
+
+
 						// client disconnect
                         if(nBufferLen<=0){
-                            printf("A Client(%d) is disconnected.\n",rfds[i].fd);
                             close(rfds[i].fd);
                             rfds[i].fd=-1;
                             rfds[i].events=0;
@@ -118,14 +112,9 @@ int main(int argc, char *argv[]){
                         }
                         else{
 							// broadcasting
-                            char strBuffer2[BUFSIZ];
-                            int nBufferLen2=0;
-                            bzero(strBuffer2,BUFSIZ);
-                            nBufferLen2=sprintf(strBuffer2,"[%d] %s",rfds[i].fd,strBuffer);
-                            printf("%s",strBuffer2);
                             for(int i=2;i<MAX_CLIENTS+2;i++){
                                 if(rfds[i].fd<0) continue;
-                                send(rfds[i].fd,strBuffer2,nBufferLen2,0);
+                                send(rfds[i].fd,strBuffer,nBufferLen,0);
                             }
                         }
                     }
@@ -136,7 +125,6 @@ int main(int argc, char *argv[]){
         }
     }while(1);
 
-		// 열린 파일 디스크립터 닫음
         for(int i=0;i<MAX_CLIENTS+2;i++){
             if(rfds[i].fd>0) close(rfds[i].fd);
         }
